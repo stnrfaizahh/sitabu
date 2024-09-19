@@ -1,0 +1,180 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+use App\Models\Siswa;
+use App\Models\Tabungan; // Model untuk tabungan
+use Yajra\DataTables\Facades\DataTables;
+use App\Models\User;
+use App\Models\Walikelas;
+
+class WalikelasController extends Controller
+{
+    public function index(){
+        $breadcrumb = (object)[
+            'title' => 'Daftar Wali Kelas',
+            'list' => ['Home', 'Wali Kelas Dashboard']
+        ];
+        $page = (object)[
+            'title' => 'Daftar Siswa yang Terdaftar dalam Sistem'
+        ];
+        $activeMenu = 'walikelas'; 
+        $walikelas = Walikelas::with('siswa')->get();
+        return view('walikelas.index', compact('breadcrumb', 'page', 'activeMenu', 'walikelas'));
+    }
+
+    public function list()
+    {
+        $walikelas = Walikelas::with('siswa.user')->select('wali_kelas_id', 'siswa_id', 'pemasukan', 'pengeluaran', 'saldo');
+
+        return DataTables::of($walikelas)
+            ->addIndexColumn()
+            ->addColumn('siswa_nama', function ($row) {
+                return $row->siswa ? $row->siswa->user->nama : 'N/A';
+            })
+            ->addColumn('aksi', function ($row) {
+                return '<a href="'.url('/wali_kelas/' . $row->wali_kelas_id).'" class="btn btn-info btn-sm">Detail</a> ' .
+                       '<a href="'.url('/wali_kelas/' . $row->wali_kelas_id . '/edit').'" class="btn btn-warning btn-sm">Edit</a> ' .
+                       '<form class="d-inline-block" method="POST" action="'.url('/wali_kelas/'.$row->wali_kelas_id).'">' .
+                       csrf_field() . method_field('DELETE') .
+                       '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+    public function create()
+{
+    $breadcrumb = (object)[
+        'title' => 'Tambah Wali Kelas',
+        'list' => ['Home', 'Wali Kelas', 'Tambah']
+    ];
+    $page = (object)[
+        'title' => 'Tambah Data Wali Kelas Baru'
+    ];
+    $activeMenu = 'walikelas';
+    $siswa = Siswa::all(); // Ambil semua data siswa
+
+    return view('walikelas.create', compact('breadcrumb', 'page', 'activeMenu', 'siswa'));
+}
+    public function store(Request $request)
+{
+    // Validasi data
+    $request->validate([
+        'siswa_id' => 'required|exists:siswa,siswa_id',
+        'pemasukan' => 'required|numeric',
+        'pengeluaran' => 'required|numeric',
+        'saldo' => 'required|numeric',
+    ]);
+
+    // Simpan data
+    Walikelas::create([
+        'siswa_id' => $request->siswa_id,
+        'pemasukan' => $request->pemasukan,
+        'pengeluaran' => $request->pengeluaran,
+        'saldo' => $request->saldo,
+    ]);
+
+    return redirect()->route('wali_kelas.index')->with('success', 'Data berhasil ditambahkan!');
+}
+
+public function show($id)
+{
+    // Cari wali kelas berdasarkan ID
+    $walikelas = Walikelas::with('siswa')->findOrFail($id); // Menggunakan eager loading untuk relasi siswa
+
+    // Breadcrumb untuk navigasi
+    $breadcrumb = (object)[
+        'title' => 'Detail Wali Kelas',
+        'list' => ['Home', 'Wali Kelas', 'Detail']
+    ];
+    
+    // Informasi halaman
+    $page = (object)[
+        'title' => 'Detail Data Wali Kelas'
+    ];
+    
+    $activeMenu = 'walikelas';
+
+    // Kirim data ke view
+    return view('walikelas.show', compact('breadcrumb', 'page', 'activeMenu', 'walikelas'));
+}
+
+    public function edit($id)
+{
+    $walikelas = Walikelas::findOrFail($id);
+    
+    $breadcrumb = (object)[
+        'title' => 'Edit Wali Kelas',
+        'list' => ['Home', 'Wali Kelas', 'Edit']
+    ];
+    $page = (object)[
+        'title' => 'Edit Data Wali Kelas'
+    ];
+    $activeMenu = 'walikelas';
+
+    return view('walikelas.edit', compact('breadcrumb', 'page', 'activeMenu', 'walikelas'));
+}
+
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'siswa_id' => 'required|exists:siswa,siswa_id',
+        'pemasukan' => 'required|numeric',
+        'pengeluaran' => 'required|numeric',
+        'saldo' => 'required|numeric',
+    ]);
+
+    $walikelas = Walikelas::findOrFail($id);
+    $walikelas->update($request->all());
+
+    return redirect()->route('wali_kelas.index')
+        ->with('success', 'Data Wali Kelas berhasil diperbarui');
+}
+
+public function destroy($id)
+{
+    $walikelas = Walikelas::findOrFail($id);
+    $walikelas->delete();
+
+    return redirect()->route('wali_kelas.index')
+        ->with('success', 'Data Wali Kelas berhasil dihapus');
+}
+
+
+}
+// public function rekapKelas(Request $request)
+// {
+//     // Ambil ID wali kelas yang sedang login
+//     // $waliKelasId = auth()->user()->id;
+
+//     // Dapatkan semua siswa yang berada di bawah wali kelas yang sedang login
+//     // $siswa = Siswa::where('wali_kelas_id', $waliKelasId)->get();
+
+//     // Siapkan data tabungan untuk DataTables
+//     // $rekapTabungan = $siswa->map(function ($siswa) {
+//     //     $pemasukan = Tabungan::where('siswa_id', $siswa->id)->where('type', 'pemasukan')->sum('amount');
+//     //     $pengeluaran = Tabungan::where('siswa_id', $siswa->id)->where('type', 'pengeluaran')->sum('amount');
+//     //     $saldo = $pemasukan - $pengeluaran;
+
+//     //     return [
+//     //         'siswa' => $siswa->nama,
+//     //         'pemasukan' => $pemasukan,
+//     //         'pengeluaran' => $pengeluaran,
+//     //         'saldo' => $saldo,
+//     //     ];
+//     // });
+    
+
+//     // Jika request dari DataTables
+//     if ($request->ajax()) {
+//         return DataTables::of($rekapTabungan)
+//             ->addIndexColumn()
+//             ->make(true);
+//     }
+
+//     // Jika bukan request AJAX, tampilkan view dengan DataTables
+//     return view('wali_kelas.rekap_kelas');
+// }
+    
