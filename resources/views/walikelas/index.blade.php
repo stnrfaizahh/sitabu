@@ -79,8 +79,11 @@
               orderable: false,     
               searchable: false     
             } 
-          ] 
+          ],
+          dom:'Bfrtip',
+          buttons:['pdf']
       }); 
+
     }); 
   </script> 
 @endpush

@@ -9,9 +9,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+// Route::get('/dashboard', function () {
+//     return view('dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/dashboard', [WalikelasController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -25,8 +27,9 @@ Route::middleware('auth')->group(function () {
 //     Route::get('/siswa/dashboard', 'SiswaController@index'); // Akses siswa
 // });
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth','verified']], function () {
    Route::prefix('wali_kelas')->group(function(){
+        Route::get('/index', [WalikelasController::class, 'index'])->name(name: 'wali_kelas.index');
         Route::post('/list', [WalikelasController::class, 'list'])->name(name: 'wali_kelas.list');
         Route::get('/create', [WalikelasController::class, 'create'])->name(name: 'wali_kelas.create');
         Route::post('/', [WalikelasController::class, 'store'])->name(name: 'wali_kelas.store');

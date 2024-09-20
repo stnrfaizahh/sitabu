@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 use App\Models\Siswa;
 use App\Models\Tabungan; // Model untuk tabungan
@@ -12,6 +14,11 @@ use App\Models\Walikelas;
 
 class WalikelasController extends Controller
 {
+    public function dashboard()
+    {
+        $walikelas = Walikelas::with('siswa.user')->get();
+        return view('dashboard', compact('walikelas'));
+    }
     public function index(){
         $breadcrumb = (object)[
             'title' => 'Daftar Wali Kelas',
