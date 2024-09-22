@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id('wali_kelas_id');
             $table->foreignId(column: 'siswa_id')->constrained('siswa', 'siswa_id')->onDelete('cascade');
             $table->decimal('pemasukan');
-            $table->decimal(column: 'pengeluaran');
-            $table->decimal(column: 'saldo');
+            $table->decimal('pengeluaran');
+            $table->decimal( 'saldo', 15, 2)->default(0);
             $table->timestamps();
         });
         

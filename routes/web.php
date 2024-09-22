@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WalikelasController;
+use App\Http\Controllers\TabunganController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -39,6 +40,13 @@ Route::group(['middleware' => ['auth','verified']], function () {
         Route::delete('/{id}', [WalikelasController::class, 'destroy'])->name(name: 'wali_kelas.destroy');
    });      
 });
+
+Route::get('/tabungan', [TabunganController::class, 'index'])->name('tabungan.index');
+Route::post('/tabungan/store', [TabunganController::class, 'store'])->name('tabungan.store');
+Route::get('/tabungan/{siswa_id}', [TabunganController::class, 'show'])->name('tabungan.show');
+Route::get('/tabungan/edit/{id}', [TabunganController::class, 'edit'])->name('tabungan.edit');
+Route::put('/tabungan/update/{id}', [TabunganController::class, 'update'])->name('tabungan.update');
+
 
 // Route::group(['middleware' => ['auth', 'role:bendahara']], function () {
 //     Route::get('/bendahara/rekap', 'BendaharaController@rekap'); // Akses bendahara

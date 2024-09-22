@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('tabungan', function (Blueprint $table) {
             $table->id('tabungan_id');
             $table->foreignId('siswa_id')->constrained('siswa','siswa_id')->onDelete('cascade'); // Relasi ke siswa
+            $table->date('tanggal_transaksi'); // Tanggal transaksi
             $table->decimal('jumlah_transaksi', 15, 2); // Jumlah transaksi
             $table->enum('jenis_transaksi', ['setor', 'tarik']); // Jenis transaksi
             $table->decimal('saldo', 15, 2); // Saldo setelah transaksi
-            $table->date('tanggal_transaksi'); // Tanggal transaksi
             $table->timestamps();
         });
     }

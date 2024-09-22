@@ -13,6 +13,8 @@ class Siswa extends Model
     
     protected $fillable = [
         'user_id',
+        'wali_kelas_id',
+    
     ];
  
     protected $table = 'siswa';
@@ -25,4 +27,16 @@ class Siswa extends Model
     {
         return $this->belongsTo(Walikelas::class, 'wali_kelas_id');
     }
+    public function transactions()
+    {
+        return $this->hasMany(Tabungan::class, 'siswa_id');
+    }
+    public function hitungSaldo()
+    {
+    $totalSetor = $this->tabungan()->where('jenis_transaksi', 'setor')->sum('jumlah_transaksi');
+    $totalTarik = $this->tabungan()->where('jenis_transaksi', 'tarik')->sum('jumlah_transaksi');
+
+    return $totalSetor - $totalTarik;
+    }
+
 }

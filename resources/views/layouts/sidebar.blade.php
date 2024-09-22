@@ -19,26 +19,14 @@
                     <p>Dashboard</p>
                 </a>
             </li>
-            <li class="nav-header">Data Karyawan</li>
+            <li class="nav-header">Data Siswa</li>
             <li class="nav-item">
                 <a href="{{ url('/employee') }}" class="nav-link {{ $activeMenu == 'employee' ? 'active' : '' }} ">
                     <i class="nav-icon fas fa-users"></i>
-                    <p>Data Karyawan</p>
+                    <p>Data Siswa</p>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{ url('/department') }}" class="nav-link {{ $activeMenu == 'department' ? 'active' : '' }} ">
-                    <i class="nav-icon far fa-building"></i>
-                    <p>Departemen</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ url('/position') }}" class="nav-link {{ $activeMenu == 'position' ? 'active' : '' }} ">
-                    {{-- <i class="nav-icon fas fa-network-wired"></i> --}}
-                    <i class="nav-icon fas fa-user-tie"></i>
-                    <p>Posisi</p>
-                </a>
-            </li>
+            
             <li class="nav-item">
                 <a href="{{ url('/schedule') }}" class="nav-link {{ $activeMenu == 'schedule' ? 'active' : '' }} ">
                     <i class="nav-icon far fa-calendar-alt"></i>
@@ -68,7 +56,7 @@
             <li class="nav-item">
                 <a href="{{ url('/user') }}" class="nav-link {{ $activeMenu == 'user' ? 'active' : '' }}">
                     <i class="nav-icon far fa-user"></i>
-                    <p>Data User</p>
+                    <p>Logout</p>
                 </a>
             </li>
         </ul>

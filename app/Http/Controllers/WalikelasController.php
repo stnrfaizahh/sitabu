@@ -33,24 +33,29 @@ class WalikelasController extends Controller
     }
 
     public function list()
-    {
-        $walikelas = Walikelas::with('siswa.user')->select('wali_kelas_id', 'siswa_id', 'pemasukan', 'pengeluaran', 'saldo');
+{
+    $walikelas = Walikelas::with('siswa.tabungan')->select('wali_kelas_id', 'siswa_id');
 
-        return DataTables::of($walikelas)
-            ->addIndexColumn()
-            ->addColumn('siswa_nama', function ($row) {
-                return $row->siswa ? $row->siswa->user->nama : 'N/A';
-            })
-            ->addColumn('aksi', function ($row) {
-                return '<a href="'.url('/wali_kelas/' . $row->wali_kelas_id).'" class="btn btn-info btn-sm">Detail</a> ' .
-                       '<a href="'.url('/wali_kelas/' . $row->wali_kelas_id . '/edit').'" class="btn btn-warning btn-sm">Edit</a> ' .
-                       '<form class="d-inline-block" method="POST" action="'.url('/wali_kelas/'.$row->wali_kelas_id).'">' .
-                       csrf_field() . method_field('DELETE') .
-                       '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
-    }
+    return DataTables::of($walikelas)
+        ->addIndexColumn()
+        ->addColumn('siswa_nama', function ($row) {
+            return $row->siswa ? $row->siswa->user->nama : 'N/A';
+        })
+        ->addColumn('saldo', function ($row) {
+            // Menghitung saldo dari tabungan siswa
+            $totalSaldo = $row->siswa->tabungan->sum('saldo');
+            return $totalSaldo;
+        })
+        ->addColumn('aksi', function ($row) {
+            return '<a href="'.url('/wali_kelas/' . $row->wali_kelas_id).'" class="btn btn-info btn-sm">Detail</a> ' .
+                   '<a href="'.url('/wali_kelas/' . $row->wali_kelas_id . '/edit').'" class="btn btn-warning btn-sm">Edit</a> ' .
+                   '<form class="d-inline-block" method="POST" action="'.url('/wali_kelas/'.$row->wali_kelas_id).'">' .
+                   csrf_field() . method_field('DELETE') .
+                   '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';
+        })
+        ->rawColumns(['aksi'])
+        ->make(true);
+}
     public function create()
 {
     $breadcrumb = (object)[
@@ -65,31 +70,43 @@ class WalikelasController extends Controller
 
     return view('walikelas.create', compact('breadcrumb', 'page', 'activeMenu', 'siswa'));
 }
-    public function store(Request $request)
+public function store(Request $request)
 {
     // Validasi data
     $request->validate([
         'siswa_id' => 'required|exists:siswa,siswa_id',
-        'pemasukan' => 'required|numeric',
-        'pengeluaran' => 'required|numeric',
-        'saldo' => 'required|numeric',
+        'jumlah_transaksi' => 'required|numeric',
+        'jenis_transaksi' => 'required|in:setor,tarik', // Setor untuk pemasukan, Tarik untuk pengeluaran
+        'tanggal_transaksi' => 'required|date',
     ]);
 
-    // Simpan data
-    Walikelas::create([
-        'siswa_id' => $request->siswa_id,
-        'pemasukan' => $request->pemasukan,
-        'pengeluaran' => $request->pengeluaran,
-        'saldo' => $request->saldo,
+    // Ambil data siswa
+    $siswa = Siswa::findOrFail($request->siswa_id);
+
+    // Hitung saldo setelah transaksi
+    $saldoAwal = $siswa->saldo;
+    $saldoAkhir = ($request->jenis_transaksi == 'setor') ? $saldoAwal + $request->jumlah_transaksi : $saldoAwal - $request->jumlah_transaksi;
+
+    // Simpan data ke tabel tabungan
+    Tabungan::create([
+        'siswa_id' => $siswa->siswa_id,
+        'jumlah_transaksi' => $request->jumlah_transaksi,
+        'jenis_transaksi' => $request->jenis_transaksi,
+        'saldo' => $saldoAkhir,
+        'tanggal_transaksi' => $request->tanggal_transaksi,
     ]);
 
-    return redirect()->route('wali_kelas.index')->with('success', 'Data berhasil ditambahkan!');
+    // Update saldo siswa
+    $siswa->update(['saldo' => $saldoAkhir]);
+
+    return redirect()->route('wali_kelas.index')->with('success', 'Data tabungan berhasil ditambahkan!');
 }
+
 
 public function show($id)
 {
     // Cari wali kelas berdasarkan ID
-    $walikelas = Walikelas::with('siswa')->findOrFail($id); // Menggunakan eager loading untuk relasi siswa
+    $walikelas = Walikelas::with('siswa.tabungan')->findOrFail($id); // Menggunakan eager loading untuk relasi siswa
 
     // Breadcrumb untuk navigasi
     $breadcrumb = (object)[
@@ -120,6 +137,7 @@ public function show($id)
         'title' => 'Edit Data Wali Kelas'
     ];
     $activeMenu = 'walikelas';
+    $siswa = Siswa::all();
 
     return view('walikelas.edit', compact('breadcrumb', 'page', 'activeMenu', 'walikelas'));
 }
@@ -128,13 +146,12 @@ public function update(Request $request, $id)
 {
     $request->validate([
         'siswa_id' => 'required|exists:siswa,siswa_id',
-        'pemasukan' => 'required|numeric',
-        'pengeluaran' => 'required|numeric',
-        'saldo' => 'required|numeric',
     ]);
 
     $walikelas = Walikelas::findOrFail($id);
-    $walikelas->update($request->all());
+    $walikelas->update([
+        'siswa_id' => $request->siswa_id,
+    ]);
 
     return redirect()->route('wali_kelas.index')
         ->with('success', 'Data Wali Kelas berhasil diperbarui');
