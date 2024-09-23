@@ -36,5 +36,8 @@ class BendaharaController extends Controller
         });
 
         return view('bendahara.rekap', compact('rekapTabunganWaliKelas'));
+    }public function dashboard()
+    {
+        return view('bendahara.dashboard'); // View bendahara dashboard
     }
 }
