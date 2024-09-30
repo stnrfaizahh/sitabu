@@ -60,4 +60,8 @@
     </div>
     <!-- /.row -->
 </div>
+<<<<<<< HEAD
 @endsection
+=======
+@endsection
+>>>>>>> 5a0c4c24aa8e5af2e9a836bfe92662aed9aa4b74

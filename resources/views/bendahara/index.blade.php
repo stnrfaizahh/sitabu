@@ -1796,4 +1796,8 @@
 <script src="dist/js/pages/dashboard2.js"></script>
 
 
+<<<<<<< HEAD
 </body></html>
+=======
+</body></html>
+>>>>>>> 5a0c4c24aa8e5af2e9a836bfe92662aed9aa4b74
