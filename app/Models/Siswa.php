@@ -13,7 +13,9 @@ class Siswa extends Model
     
     protected $fillable = [
         'user_id',
+        // 'kelas',
         'wali_kelas_id',
+        'saldo',
     
     ];
  
@@ -22,12 +24,16 @@ class Siswa extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    // public function kelas()
+    // {
+    //     return $this->belongsTo(User::class);
+    // }
 
     public function wali_kelas()
     {
-        return $this->belongsTo(Walikelas::class, 'wali_kelas_id');
+        return $this->belongsTo(Walikelas::class);
     }
-    public function transactions()
+    public function tabungan()
     {
         return $this->hasMany(Tabungan::class, 'siswa_id');
     }
@@ -37,6 +43,23 @@ class Siswa extends Model
     $totalTarik = $this->tabungan()->where('jenis_transaksi', 'tarik')->sum('jumlah_transaksi');
 
     return $totalSetor - $totalTarik;
+    }
+    public function getSaldoAttribute()
+    {
+        // Menghitung total setoran
+        $totalSetor = $this->tabungan()->where('jenis_transaksi', 'setor')->sum('jumlah_transaksi') ?? 0;
+        
+        // Menghitung total penarikan
+        $totalTarik = $this->tabungan()->where('jenis_transaksi', 'tarik')->sum('jumlah_transaksi') ?? 0;
+        
+        // Mengembalikan saldo akhir siswa
+        return $totalSetor - $totalTarik;
+    }
+
+    // Mutator untuk menyimpan kelas dalam huruf kapital (opsional)
+    public function setKelasAttribute($value)
+    {
+        $this->attributes['kelas'] = strtoupper($value);
     }
 
 }

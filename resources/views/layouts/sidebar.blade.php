@@ -19,7 +19,7 @@
                     <p>Dashboard</p>
                 </a>
             </li>
-            <li class="nav-header">Data Siswa</li>
+            {{-- <li class="nav-header">Data Siswa</li> --}}
             <li class="nav-item">
                 <a href="{{ url('/employee') }}" class="nav-link {{ $activeMenu == 'employee' ? 'active' : '' }} ">
                     <i class="nav-icon fas fa-users"></i>
@@ -30,29 +30,9 @@
             <li class="nav-item">
                 <a href="{{ url('/schedule') }}" class="nav-link {{ $activeMenu == 'schedule' ? 'active' : '' }} ">
                     <i class="nav-icon far fa-calendar-alt"></i>
-                    <p>Jadwal</p>
+                    <p>Rekap Tabungan</p>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="{{ url('/salary') }}" class="nav-link {{ $activeMenu == 'salary' ? 'active' : '' }} ">
-                    <i class="nav-icon far fa-money-bill-alt"></i>
-                    <p>Gaji</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ url('/attendance') }}"
-                    class="nav-link {{ $activeMenu == 'attendance' ? 'active' : '' }} ">
-                    <i class="nav-icon fas fa-calendar-check"></i>
-                    <p>Kehadiran</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ url('/leave') }}" class="nav-link {{ $activeMenu == 'leave' ? 'active' : '' }} ">
-                    <i class="nav-icon fas fa-umbrella-beach"></i>
-                    <p>Cuti</p>
-                </a>
-            </li>
-            <li class="nav-header">Data User</li>
             <li class="nav-item">
                 <a href="{{ url('/user') }}" class="nav-link {{ $activeMenu == 'user' ? 'active' : '' }}">
                     <i class="nav-icon far fa-user"></i>

@@ -15,9 +15,10 @@ class Tabungan extends Model
         'saldo',
         'tanggal_transaksi',
     ];
+    protected $table = 'tabungan';
 
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class, 'siswa_id');
+        return $this->belongsTo(Siswa::class);
     }
 }

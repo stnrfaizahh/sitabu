@@ -35,7 +35,9 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
-
+    public function kelas(){
+        return $this->hasMany(Kelas::class);
+    }
     public function siswa()
     {
         return $this->hasOne(Siswa::class, 'user_id');
@@ -56,16 +58,18 @@ class User extends Authenticatable
         return $this->hasOne(KepalaSekolah::class, 'user_id');
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    // /**
+    //  * Get the attributes that should be cast.
+    //  *
+    //  * @return array<string, string>
+    //  */
+    // protected function casts(): array
+    // {
+    //     return [
+    //         'email_verified_at' => 'datetime',
+    //         'password' => 'hashed',
+    //     ];
+    // }
+
+    
 }

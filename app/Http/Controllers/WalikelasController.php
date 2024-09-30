@@ -14,14 +14,15 @@ use App\Models\Walikelas;
 
 class WalikelasController extends Controller
 {
+
     public function dashboard()
     {
-        $walikelas = Walikelas::with('siswa.user')->get();
+        $walikelas = Walikelas::with('siswa.user')->where('user_id', auth()->user()->user_id)->firstOrFail();   
         return view('dashboard', compact('walikelas'));
     }
     public function index(){
         $breadcrumb = (object)[
-            'title' => 'Daftar Wali Kelas',
+            'title' => 'Daftar Siswa',
             'list' => ['Home', 'Wali Kelas Dashboard']
         ];
         $page = (object)[
@@ -32,19 +33,37 @@ class WalikelasController extends Controller
         return view('walikelas.index', compact('breadcrumb', 'page', 'activeMenu', 'walikelas'));
     }
 
-    public function list()
+   public function list()
 {
-    $walikelas = Walikelas::with('siswa.tabungan')->select('wali_kelas_id', 'siswa_id');
+    // Ambil wali kelas beserta siswa dan tabungannya
+    $walikelas = Walikelas::with('siswa.user', 'siswa.tabungan')
+    ->select('wali_kelas_id' );
+    // $walikelas = Walikelas::with('siswa.user', 'siswa.tabungan')->select('wali_kelas_id', 'kelas')->get();
 
     return DataTables::of($walikelas)
         ->addIndexColumn()
-        ->addColumn('siswa_nama', function ($row) {
-            return $row->siswa ? $row->siswa->user->nama : 'N/A';
+        ->addColumn('nama', function ($wali_kelas) {
+            // Buat array untuk menyimpan nama siswa
+            return $wali_kelas->siswa->map(function ($siswa) {
+                return $siswa->user->nama; // Ambil nama siswa dari relasi user
+            });
+        })
+        ->addColumn('pemasukan', function ($wali_kelas) {
+            // Ambil total pemasukan (setor) dari tabungan siswa
+            return $wali_kelas->siswa->sum(function ($siswa) {
+                return $siswa->tabungan->where('jenis_transaksi', 'setor')->sum('jumlah_transaksi');
+            });
+        })
+        ->addColumn('pengeluaran', function ($wali_kelas) {
+            // Ambil total pemasukan (setor) dari tabungan siswa
+            return $wali_kelas->siswa->sum(function ($siswa) {
+                return $siswa->tabungan->where('jenis_transaksi', 'tarik')->sum('jumlah_transaksi');
+            });
         })
         ->addColumn('saldo', function ($row) {
-            // Menghitung saldo dari tabungan siswa
-            $totalSaldo = $row->siswa->tabungan->sum('saldo');
-            return $totalSaldo;
+            return $row->siswa->sum(function ($siswa) {
+                return $siswa->tabungan ? $siswa->tabungan->sum('saldo') : 0;
+            });
         })
         ->addColumn('aksi', function ($row) {
             return '<a href="'.url('/wali_kelas/' . $row->wali_kelas_id).'" class="btn btn-info btn-sm">Detail</a> ' .
@@ -56,6 +75,7 @@ class WalikelasController extends Controller
         ->rawColumns(['aksi'])
         ->make(true);
 }
+
     public function create()
 {
     $breadcrumb = (object)[
@@ -74,14 +94,14 @@ public function store(Request $request)
 {
     // Validasi data
     $request->validate([
-        'siswa_id' => 'required|exists:siswa,siswa_id',
+        'siswa_id' => 'required',
         'jumlah_transaksi' => 'required|numeric',
         'jenis_transaksi' => 'required|in:setor,tarik', // Setor untuk pemasukan, Tarik untuk pengeluaran
         'tanggal_transaksi' => 'required|date',
     ]);
 
     // Ambil data siswa
-    $siswa = Siswa::findOrFail($request->siswa_id);
+    $siswa = Siswa::where('kelas', $request->kelas)->get();
 
     // Hitung saldo setelah transaksi
     $saldoAwal = $siswa->saldo;
@@ -166,39 +186,37 @@ public function destroy($id)
         ->with('success', 'Data Wali Kelas berhasil dihapus');
 }
 
+public function rekapKelas(Request $request)
+{
+//     Ambil ID wali kelas yang sedang login
+    $waliKelasId = auth()->user()->id;
 
+    // Dapatkan semua siswa yang berada di bawah wali kelas yang sedang login
+    $siswa = Siswa::where('wali_kelas_id', $waliKelasId)->get();
+
+    // Siapkan data tabungan untuk DataTables
+    $rekapTabungan = $siswa->map(function ($siswa) {
+        $pemasukan = Tabungan::where('siswa_id', $siswa->id)->where('type', 'pemasukan')->sum('amount');
+        $pengeluaran = Tabungan::where('siswa_id', $siswa->id)->where('type', 'pengeluaran')->sum('amount');
+        $saldo = $pemasukan - $pengeluaran;
+
+        return [
+            'siswa' => $siswa->nama,
+            'pemasukan' => $pemasukan,
+            'pengeluaran' => $pengeluaran,
+            'saldo' => $saldo,
+        ];
+    });
+    
+
+    // Jika request dari DataTables
+    if ($request->ajax()) {
+        return DataTables::of($rekapTabungan)
+            ->addIndexColumn()
+            ->make(true);
+    }
+
+    // Jika bukan request AJAX, tampilkan view dengan DataTables
+    return view('wali_kelas.rekap_kelas');
 }
-// public function rekapKelas(Request $request)
-// {
-//     // Ambil ID wali kelas yang sedang login
-//     // $waliKelasId = auth()->user()->id;
-
-//     // Dapatkan semua siswa yang berada di bawah wali kelas yang sedang login
-//     // $siswa = Siswa::where('wali_kelas_id', $waliKelasId)->get();
-
-//     // Siapkan data tabungan untuk DataTables
-//     // $rekapTabungan = $siswa->map(function ($siswa) {
-//     //     $pemasukan = Tabungan::where('siswa_id', $siswa->id)->where('type', 'pemasukan')->sum('amount');
-//     //     $pengeluaran = Tabungan::where('siswa_id', $siswa->id)->where('type', 'pengeluaran')->sum('amount');
-//     //     $saldo = $pemasukan - $pengeluaran;
-
-//     //     return [
-//     //         'siswa' => $siswa->nama,
-//     //         'pemasukan' => $pemasukan,
-//     //         'pengeluaran' => $pengeluaran,
-//     //         'saldo' => $saldo,
-//     //     ];
-//     // });
-    
-
-//     // Jika request dari DataTables
-//     if ($request->ajax()) {
-//         return DataTables::of($rekapTabungan)
-//             ->addIndexColumn()
-//             ->make(true);
-//     }
-
-//     // Jika bukan request AJAX, tampilkan view dengan DataTables
-//     return view('wali_kelas.rekap_kelas');
-// }
-    
+}

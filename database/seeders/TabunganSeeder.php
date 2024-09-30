@@ -16,7 +16,7 @@ class TabunganSeeder extends Seeder
         DB::table('tabungan')->insert([
             [
                 'tabungan_id' => 1,
-                'siswa_id' => 1, // Relasi ke siswa Ahmad Siswa
+                'siswa_id' => 3, // Relasi ke siswa Ahmad Siswa
                 'jumlah_transaksi' => 100000,
                 'jenis_transaksi' => 'setor',
                 'saldo' => 100000,
@@ -24,7 +24,7 @@ class TabunganSeeder extends Seeder
             ],
             [
                 'tabungan_id' => 2,
-                'siswa_id' => 1,
+                'siswa_id' => 3,
                 'jumlah_transaksi' => 50000,
                 'jenis_transaksi' => 'tarik',
                 'saldo' => 50000,

@@ -16,7 +16,7 @@ class BendaharaSeeder extends Seeder
         DB::table('bendahara')->insert([
             [
                 'bendahara_id' => 1,
-                'user_id' => 3, // Relasi ke user Cici Bendahara
+                'user_id' => 2, 
                 'created_at' => now(),
                 'updated_at' => now()
             ]

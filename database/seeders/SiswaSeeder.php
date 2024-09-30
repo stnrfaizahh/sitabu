@@ -13,13 +13,27 @@ class SiswaSeeder extends Seeder
     public function run(): void
     {
         Siswa::create([
-            'user_id' => 3, // Asumsi user dengan ID 3 adalah Siswa 1
-            'wali_kelas_id' => 1, // Relasi dengan wali kelas
+            'user_id' => 5, 
+            'wali_kelas_id' => 1,
+            'kelas' => 'Kelas 1A', 
         ]);
-
         Siswa::create([
-            'user_id' => 4, // Asumsi user dengan ID 4 adalah Siswa 2
-            'wali_kelas_id' => 1, // Relasi dengan wali kelas
+            'user_id' => 6, 
+            'wali_kelas_id' => 1,
+            'kelas' => 'Kelas 1A', 
         ]);
+        Siswa::create([
+            'user_id' => 7, 
+            'wali_kelas_id' => 2,
+            'kelas' => 'Kelas 2A', 
+        ]);
+        Siswa::create([
+            'user_id' => 8, 
+            'wali_kelas_id' => 2,
+            'kelas' => 'Kelas 2A', 
+        ]);
+        
+
+
     }
 }

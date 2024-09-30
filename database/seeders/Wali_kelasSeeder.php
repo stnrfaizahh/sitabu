@@ -12,18 +12,26 @@ class Wali_kelasSeeder extends Seeder
      */
     public function run(): void
     {
+       
         Walikelas::create([
-            'siswa_id' => 1, // Asumsi siswa dengan ID 1 sudah ada
-            'pemasukan' => 100000,
-            'pengeluaran' => 20000,
-            'saldo' => 80000,
+            'user_id' => 3,
+            'nama' => 'Wali Kelas 1',
+            'kelas' => 'Kelas 1A',
+            'pemasukan' => 5000000,
+            'pengeluaran' => 2000000,
+            'saldo' => 3000000,
         ]);
 
         Walikelas::create([
-            'siswa_id' => 2, // Asumsi siswa dengan ID 2 sudah ada
-            'pemasukan' => 50000,
-            'pengeluaran' => 10000,
-            'saldo' => 40000,
+            'user_id' => 4,
+            'nama' => 'Wali Kelas 2',
+            'kelas' => 'kelas 2A',
+            'pemasukan' => 5000000,
+            'pengeluaran' => 2000000,
+            'saldo' => 3000000,
         ]);
+
+        // Output untuk konfirmasi
+        $this->command->info("Seeder Wali Kelas berhasil dijalankan.");
     }
 }

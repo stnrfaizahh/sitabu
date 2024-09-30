@@ -17,6 +17,11 @@ class DatabaseSeeder extends Seeder
             UsersSeeder::class,
             Wali_kelasSeeder::class,
             SiswaSeeder::class,
+            BendaharaSeeder::class,
+            Kepala_SekolahSeeder::class,
+            TabunganSeeder::class,
+            Laporan_kelasSeeder::class,
+            Laporan_bendaharaSeeder::class,
         ]);
     }
 }

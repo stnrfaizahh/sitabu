@@ -12,12 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('wali_kelas', function (Blueprint $table) {
+            
             $table->id('wali_kelas_id');
-            $table->foreignId(column: 'siswa_id')->constrained('siswa', 'siswa_id')->onDelete('cascade');
-            $table->decimal('pemasukan');
-            $table->decimal('pengeluaran');
+            $table->unsignedBigInteger('user_id');
+            // $table->unsignedBigInteger('siswa_id');
+            $table->string('nama');
+            $table->string('kelas');
+            $table->index('kelas');
+            $table->decimal('pemasukan', 15, 2)->default(0);
+            $table->decimal('pengeluaran', 15, 2)->default(0);
             $table->decimal( 'saldo', 15, 2)->default(0);
             $table->timestamps();
+
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
         
     }

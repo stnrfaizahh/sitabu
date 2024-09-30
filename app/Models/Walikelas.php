@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Siswa;       
+use App\Models\User;       
 
 
 class Walikelas extends Model
@@ -15,18 +16,28 @@ class Walikelas extends Model
     public $incrementing = true; 
     
     protected $fillable = [
-        'wali_kelas_id',
+        'user_id',
+        'nama', 
+        'kelas',
+        'pemasukan',
+        'pengeluaran',
+        'saldo',
 
     ];
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
     public function siswa()
     {
-        return $this->hasMany(Siswa::class, 'wali_kelas_id', 'wali_kelas_id');
+        return $this->hasMany(Siswa::class, 'wali_kelas_id');
     }
+    
 
     public function semuaTabungan()
     {
         // Mengambil semua tabungan dari siswa yang di bawah wali kelas ini
-        return $this->hasManyThrough(Tabungan::class, Siswa::class, 'wali_kelas_id', 'siswa_id', 'wali_kelas_id', 'siswa_id');
+        return $this->hasManyThrough(Tabungan::class, Siswa::class, 'wali_kelas_id', 'siswa_id', 'kelas', 'siswa_id');
     }
     
     public function laporanKelas()

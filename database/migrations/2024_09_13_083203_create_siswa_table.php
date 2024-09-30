@@ -13,16 +13,18 @@ return new class extends Migration
     {
         Schema::create('siswa', function (Blueprint $table) {
             $table->id('siswa_id');
-            $table->unsignedBigInteger('wali_kelas_id')->nullable(); // Menambahkan kolom wali_kelas_id
-            // $table->foreign('wali_kelas_id')
-            //         ->references('wali_kelas_id')->on('wali_kelas')
-            //         ->onDelete('cascade');
-           
-            $table->foreignId('user_id') // Definisikan user_id di sini
-                  ->constrained('users') // Relasi ke tabel users
-                  ->onDelete('cascade'); // Hapus data siswa jika user dihapus
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger(column: 'wali_kelas_id');
+            $table->string('kelas');
+            
+            // $table->foreignId('wali_kelas_id')->nullable(); // Belum ada foreign key, buat nullable
+            $table->decimal('saldo', 15, 2)->default(0);
             $table->timestamps();
+
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('wali_kelas_id')->references('wali_kelas_id')->on('wali_kelas')->onDelete('cascade');
         });
+        
     }
     
 
@@ -32,9 +34,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('siswa', function (Blueprint $table) {
-            $table->dropForeign(['wali_kelas_id']);
-            $table->dropColumn('wali_kelas_id');
-
+            $table->dropForeign(['kelas']);
+            $table->dropColumn('kelas');
+            
             $table->dropForeign(['user_id']); // Hapus foreign key user_id
             $table->dropColumn('user_id'); // Hapus kolom user_id
         });

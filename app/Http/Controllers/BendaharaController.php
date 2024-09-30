@@ -33,8 +33,15 @@ class BendaharaController extends Controller
                 'pengeluaran' => $totalPengeluaran,
                 'saldo' => $totalPemasukan - $totalPengeluaran,
             ];
+            
         });
+
+        
 
         return view('bendahara.rekap', compact('rekapTabunganWaliKelas'));
     }
+public function dashboard()
+{
+    return view('bendahara.dashboard'); // View bendahara dashboard
+}
 }

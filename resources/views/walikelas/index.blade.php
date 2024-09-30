@@ -50,7 +50,7 @@
               searchable: false     
             },
             { 
-              data: "siswa_nama",  <!-- Ubah sesuai dengan kolom nama siswa -->
+              data: "nama",  <!-- Ubah sesuai dengan kolom nama siswa -->
               className: "", 
               orderable: true,     
               searchable: true     

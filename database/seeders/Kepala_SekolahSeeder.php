@@ -16,7 +16,7 @@ class Kepala_SekolahSeeder extends Seeder
         DB::table('kepala_sekolah')->insert([
             [
                 'kepala_sekolah_id' => 1,
-                'user_id' => 4, // Relasi ke user Dewi Kepala Sekolah
+                'user_id' => 1, // Relasi ke user Dewi Kepala Sekolah
                 'created_at' => now(),
                 'updated_at' => now()
             ]
